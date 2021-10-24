@@ -1,5 +1,7 @@
 package com.neoslax.shoppinglist.domain
 
+import androidx.lifecycle.LiveData
+
 interface ShopListRepository {
 
     fun addShopItem(item: ShopItem)
@@ -10,5 +12,5 @@ interface ShopListRepository {
 
     fun getShopItem(id: Int): ShopItem
 
-    fun getShopList(): List<ShopItem>
+    fun getShopList(): LiveData<List<ShopItem>>
 }
