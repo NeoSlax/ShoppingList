@@ -19,10 +19,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_shop_item)
         setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        viewModel.shopList?.observe(this, {
+        viewModel.shopList.observe(this, {
             Log.d("MAIN_ACTIVITY", "viewModel.shopList: ${it.toString()}")
             adapter.submitList(it)
         })
