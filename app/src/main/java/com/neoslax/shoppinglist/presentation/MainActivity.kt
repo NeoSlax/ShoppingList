@@ -53,7 +53,10 @@ class MainActivity : AppCompatActivity() {
             ItemTouchHelper.LEFT
         ) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                viewModel.deleteShopItem(adapter.shopList[viewHolder.adapterPosition])
+                val item = adapter.shopList[viewHolder.adapterPosition]
+                Log.d("onSwiped", "item = $item, pos = ${viewHolder.adapterPosition}")
+                viewModel.deleteShopItem(item)
+
             }
 
             override fun onMove(
@@ -73,7 +76,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupOnLongClickListener() {
-        adapter.onItemLongClickListener = { viewModel.changeEnableState(it) }
+        adapter.onItemLongClickListener = {
+            Log.d("onLongClick", "$it")
+            viewModel.changeEnableState(it) }
     }
 
 

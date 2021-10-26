@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.neoslax.shoppinglist.R
 import com.neoslax.shoppinglist.domain.ShopItem
@@ -13,8 +14,10 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopListViewHolder>
 
     var shopList = listOf<ShopItem>()
         set(value) {
+            val diffCallback = ShopListDiffCallback(shopList, value)
+            val difResult = DiffUtil.calculateDiff(diffCallback)
+            difResult.dispatchUpdatesTo(this)
             field = value
-            notifyDataSetChanged()
         }
 
     var onItemLongClickListener: ((shopItem: ShopItem) -> Unit)? = null
@@ -42,18 +45,18 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopListViewHolder>
     }
 
     override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
+        val shopItem = shopList[position]
         with(holder) {
-            tvName.text = "${shopList[position].name} type: ${shopList[position].enabled}"
-            tvCount.text = shopList[position].count.toString()
+            tvName.text = "${shopItem.name} type: ${shopItem.enabled}"
+            tvCount.text = shopItem.count.toString()
             itemView.setOnLongClickListener {
-                onItemLongClickListener?.invoke(shopList[position])
+                onItemLongClickListener?.invoke(shopItem)
                 true
             }
             itemView.setOnClickListener {
-                onItemClickListener?.invoke(shopList[position])
+                onItemClickListener?.invoke(shopItem)
             }
         }
-
 
 
     }
