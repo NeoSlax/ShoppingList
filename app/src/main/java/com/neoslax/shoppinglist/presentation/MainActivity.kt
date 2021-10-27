@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_shop_item)
         setupRecyclerView()
         addButton = findViewById(R.id.action_button_main_activity)
         addButton.setOnClickListener {
