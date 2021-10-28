@@ -33,8 +33,8 @@ class ShopItemViewModel : ViewModel() {
     val shopItem: LiveData<ShopItem>
         get() = _shopItem
 
-    private val _isFinished = MutableLiveData<Boolean>()
-    val isFinished: LiveData<Boolean>
+    private val _isFinished = MutableLiveData<Unit>()
+    val isFinished: LiveData<Unit>
         get() = _isFinished
 
     fun addShopItem(inputName: String?, inputCount: String?) {
@@ -99,6 +99,6 @@ class ShopItemViewModel : ViewModel() {
     }
 
     private fun finishWork() {
-        _isFinished.value = true
+        _isFinished.value = Unit
     }
 }
