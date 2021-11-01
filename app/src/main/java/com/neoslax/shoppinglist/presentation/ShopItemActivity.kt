@@ -5,22 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
 import com.neoslax.shoppinglist.R
 
-class ShopItemActivity : AppCompatActivity() {
-
-    private lateinit var etNameLayout: TextInputLayout
-    private lateinit var etName: EditText
-    private lateinit var etCountLayout: TextInputLayout
-    private lateinit var etCount: EditText
-    private lateinit var submitButton: Button
-    private lateinit var viewModel: ShopItemViewModel
-
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExit {
 
     private var screenMode = MODE_UNKNOWN
     private var id = DEFAULT_VAL_GET_ID
@@ -30,108 +25,24 @@ class ShopItemActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shop_item)
         parseIntent()
-        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
 
-        initViews()
-        setupEditTextListeners()
-        setupObserversVM()
+        if (savedInstanceState == null) {
+            val fragment = when (screenMode) {
+                MODE_ADD_NEW_ITEM -> ShopItemFragment.getFragmentAddMode()
+                MODE_EDIT_ITEM -> ShopItemFragment.getFragmentEditMode(id)
+                else -> throw RuntimeException("Fragment with name $screenMode not found")
+            }
 
-        when (screenMode) {
-            MODE_ADD_NEW_ITEM -> launchAddMode()
-            MODE_EDIT_ITEM -> launchEditMode()
-        }
-
-
-    }
-
-    private fun launchAddMode() {
-
-
-        submitButton.setOnClickListener {
-            val name = etName.text?.toString()
-            val count = etCount.text?.toString()
-            viewModel.addShopItem(name, count)
-        }
-
-
-    }
-
-    private fun launchEditMode() {
-
-        viewModel.getShopItemById(id)
-
-        viewModel.shopItem.observe(this) {
-            etName.setText(it.name)
-            etCount.setText(it.count.toString())
-        }
-
-        submitButton.setOnClickListener {
-            val name = etName.text?.toString()
-            val count = etCount.text?.toString()
-            viewModel.editShopItem(name, count)
+            supportFragmentManager.beginTransaction()
+                .add(R.id.shop_item_container, fragment)
+                .commit()
         }
 
     }
 
-    private fun initViews() {
-        etNameLayout = findViewById(R.id.editTextNameLayout)
-        etCountLayout = findViewById(R.id.editTextNumberLayout)
-        etName = findViewById(R.id.editTextName)
-        etCount = findViewById(R.id.editTextNumber)
-        submitButton = findViewById(R.id.submitButton)
-
-
-    }
-
-    private fun setupObserversVM() {
-        viewModel.isFinished.observe(this) {
-            finish()
-        }
-
-        viewModel.errorInputCount.observe(this) {
-            if (it) {
-                etCountLayout.error = getString(R.string.error_input_count)
-            } else {
-                etCountLayout.error = null
-            }
-        }
-        viewModel.errorInputName.observe(this) {
-            if (it) {
-                etNameLayout.error = getString(R.string.error_input_name)
-            } else {
-                etNameLayout.error = null
-            }
-        }
-    }
-
-    private fun setupEditTextListeners() {
-        etName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.resetErrorInputName()
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-        })
-
-        etCount.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.resetErrorInputCount()
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-        })
+    override fun onShopItemFragmentExit() {
+        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+        onBackPressed()
     }
 
     private fun parseIntent() {

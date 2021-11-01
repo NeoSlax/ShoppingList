@@ -3,26 +3,35 @@ package com.neoslax.shoppinglist.presentation
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.neoslax.shoppinglist.R
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExit {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: ShopListAdapter
     private lateinit var addButton: FloatingActionButton
 
+    private var fragmentContainer: FragmentContainerView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        fragmentContainer = findViewById(R.id.itemContainerView)
         setupRecyclerView()
         addButton = findViewById(R.id.action_button_main_activity)
         addButton.setOnClickListener {
-            val intent = ShopItemActivity.newIntentAddItem(this)
-            startActivity(intent)
+            if (isOnLandMode()) {
+                launchFragment(ShopItemFragment.getFragmentAddMode())
+            } else {
+                val intent = ShopItemActivity.newIntentAddItem(this)
+                startActivity(intent)
+            }
         }
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
@@ -32,6 +41,10 @@ class MainActivity : AppCompatActivity() {
         })
 
 
+    }
+
+    override fun onShopItemFragmentExit() {
+        supportFragmentManager.popBackStack()
     }
 
     private fun setupRecyclerView() {
@@ -76,17 +89,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupOnItemClickListener() {
-        adapter.onItemClickListener = { Log.d("MainActivity", "Click on $it")
+        adapter.onItemClickListener = {
+            Log.d("MainActivity", "Click on $it")
 
-            val intent = ShopItemActivity.newIntentEditItem(this, it.id)
-            startActivity(intent)
+            if (isOnLandMode()) {
+               launchFragment(ShopItemFragment.getFragmentEditMode(it.id))
+            } else {
+                val intent = ShopItemActivity.newIntentEditItem(this, it.id)
+                startActivity(intent)
+            }
         }
+    }
+
+    private fun isOnLandMode(): Boolean = fragmentContainer != null
+
+    private fun launchFragment(fragment: Fragment) {
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.itemContainerView,
+                fragment
+            )
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun setupOnLongClickListener() {
         adapter.onItemLongClickListener = {
             Log.d("onLongClick", "$it")
-            viewModel.changeEnableState(it) }
+            viewModel.changeEnableState(it)
+        }
     }
 
 
