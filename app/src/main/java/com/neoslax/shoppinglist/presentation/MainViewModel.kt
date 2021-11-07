@@ -10,7 +10,6 @@ import com.neoslax.shoppinglist.domain.ShopItem
 
 class MainViewModel : ViewModel() {
 
-
     private val shopListRepositoryImpl = ShopListRepositoryImpl //FIXME
 
     private val getShopListUseCase = GetShopListUseCase(shopListRepositoryImpl)
@@ -18,7 +17,6 @@ class MainViewModel : ViewModel() {
     private val editShopItemUseCase = EditShopItemUseCase(shopListRepositoryImpl)
 
     var shopList = getShopListUseCase.getShopList()
-
 
     fun deleteShopItem(shopItem: ShopItem) {
         deleteShopItemUseCase.deleteShopItem(shopItem)

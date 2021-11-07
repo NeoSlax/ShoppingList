@@ -1,11 +1,14 @@
 package com.neoslax.shoppinglist.presentation
 
-import ShopListViewHolder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
 import com.neoslax.shoppinglist.R
+import com.neoslax.shoppinglist.databinding.ItemShopDisabledBinding
+import com.neoslax.shoppinglist.databinding.ItemShopEnabledBinding
 import com.neoslax.shoppinglist.domain.ShopItem
 
 class ShopListAdapter : ListAdapter<ShopItem, ShopListViewHolder>(ShopItemDiffCallback()) {
@@ -27,31 +30,37 @@ class ShopListAdapter : ListAdapter<ShopItem, ShopListViewHolder>(ShopItemDiffCa
             else -> throw RuntimeException("Can't find layout with id $viewType")
         }
 
-        val view = LayoutInflater.from(parent.context).inflate(
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
             resourceLayout,
             parent,
             false
         )
-        return ShopListViewHolder(view)
+        return ShopListViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
         val shopItem = getItem(position)
-        with(holder) {
-            tvName.text = "${shopItem.name} type: ${shopItem.enabled}"
-            tvCount.text = shopItem.count.toString()
-            itemView.setOnLongClickListener {
+        val binding = holder.binding
+        when (binding) {
+            is ItemShopEnabledBinding -> {
+                binding.shopItem = shopItem
+            }
+            is ItemShopDisabledBinding -> {
+                binding.shopItem = shopItem
+            }
+        }
+        with(binding.root) {
+            setOnLongClickListener {
                 onItemLongClickListener?.invoke(shopItem)
                 true
             }
-            itemView.setOnClickListener {
+            setOnClickListener {
                 onItemClickListener?.invoke(shopItem)
+
             }
         }
-
-
     }
-
 
     override fun getItemViewType(position: Int): Int {
         return if (getItem(position).enabled) {

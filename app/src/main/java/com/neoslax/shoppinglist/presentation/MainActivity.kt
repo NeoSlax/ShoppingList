@@ -2,6 +2,7 @@ package com.neoslax.shoppinglist.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
@@ -10,22 +11,20 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.neoslax.shoppinglist.R
+import com.neoslax.shoppinglist.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExit {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: ShopListAdapter
-    private lateinit var addButton: FloatingActionButton
-
-    private var fragmentContainer: FragmentContainerView? = null
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        fragmentContainer = findViewById(R.id.itemContainerView)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupRecyclerView()
-        addButton = findViewById(R.id.action_button_main_activity)
-        addButton.setOnClickListener {
+        binding.actionButtonMainActivity.setOnClickListener {
             if (isOnLandMode()) {
                 launchFragment(ShopItemFragment.getFragmentAddMode())
             } else {
@@ -49,19 +48,20 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
 
     private fun setupRecyclerView() {
         adapter = ShopListAdapter()
-        val recyclerView = findViewById<RecyclerView>(R.id.rvMain)
-        recyclerView.adapter = adapter
-        recyclerView.recycledViewPool.setMaxRecycledViews(
-            ShopListAdapter.SHOP_LIST_ENABLED,
-            ShopListAdapter.MAX_POOL_SIZE
-        )
-        recyclerView.recycledViewPool.setMaxRecycledViews(
-            ShopListAdapter.SHOP_LIST_DISABLED,
-            ShopListAdapter.MAX_POOL_SIZE
-        )
+        with(binding) {
+            rvMain.adapter = adapter
+            rvMain.recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.SHOP_LIST_ENABLED,
+                ShopListAdapter.MAX_POOL_SIZE
+            )
+            rvMain.recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.SHOP_LIST_DISABLED,
+                ShopListAdapter.MAX_POOL_SIZE
+            )
+        }
         setupOnLongClickListener()
         setupOnItemClickListener()
-        setupOnSwipeListener(recyclerView)
+        setupOnSwipeListener(binding.rvMain)
     }
 
     private fun setupOnSwipeListener(recyclerView: RecyclerView) {
@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
             Log.d("MainActivity", "Click on $it")
 
             if (isOnLandMode()) {
-               launchFragment(ShopItemFragment.getFragmentEditMode(it.id))
+                launchFragment(ShopItemFragment.getFragmentEditMode(it.id))
             } else {
                 val intent = ShopItemActivity.newIntentEditItem(this, it.id)
                 startActivity(intent)
@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
         }
     }
 
-    private fun isOnLandMode(): Boolean = fragmentContainer != null
+    private fun isOnLandMode(): Boolean = binding.itemContainerView != null
 
     private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack()

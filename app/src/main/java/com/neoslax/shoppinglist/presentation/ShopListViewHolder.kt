@@ -1,9 +1,6 @@
-import android.view.View
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
-import com.neoslax.shoppinglist.R
+package com.neoslax.shoppinglist.presentation
 
-class ShopListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val tvName = itemView.findViewById<TextView>(R.id.tvName)
-    val tvCount = itemView.findViewById<TextView>(R.id.tvCount)
-}
+import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.RecyclerView
+
+class ShopListViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root)
