@@ -15,7 +15,10 @@ import com.neoslax.shoppinglist.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExit {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel by lazy {
+        val factory = ViewModelProvider.AndroidViewModelFactory(application)
+        ViewModelProvider(this, factory)[MainViewModel::class.java]
+    }
     private lateinit var adapter: ShopListAdapter
     private lateinit var binding: ActivityMainBinding
 
@@ -33,8 +36,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
             }
         }
 
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
-        viewModel.shopList.observe(this, {
+       viewModel.shopList.observe(this, {
             Log.d("MAIN_ACTIVITY", "viewModel.shopList: ${it.toString()}")
             adapter.submitList(it)
         })
