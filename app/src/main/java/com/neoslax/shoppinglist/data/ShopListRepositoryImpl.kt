@@ -1,54 +1,53 @@
 package com.neoslax.shoppinglist.data
 
+import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.neoslax.shoppinglist.domain.ShopItem
 import com.neoslax.shoppinglist.domain.ShopListRepository
-import java.lang.RuntimeException
 import java.util.*
 
-object ShopListRepositoryImpl : ShopListRepository {
+class ShopListRepositoryImpl(
+    application: Application
+) : ShopListRepository {
 
     private val shopList = sortedSetOf<ShopItem> ({o1, o2 -> o1.id.compareTo(o2.id)})
     private val liveDataShopList = MutableLiveData<List<ShopItem>>()
+    private val mapper = ShopListMapper()
+    private val appDatabase: AppDatabase = AppDatabase.getInstance(application)
 
     private var autoId = 0
 
     init {
         for (i in 0..10){
-            addShopItem(ShopItem("Test name $i", i, Random().nextBoolean()))
+            //addShopItem(ShopItem("Test name $i", i, Random().nextBoolean()))
         }
     }
 
     override fun addShopItem(item: ShopItem) {
-        if (item.id == ShopItem.UNDEFINED_ID) {
-            item.id = autoId++
-        }
-        shopList.add(item)
-        updateLiveData()
+        appDatabase.shopListDao().insertShopItem(mapper.shopItemToShopItemDb(item))
     }
 
     override fun deleteShopItem(shopItem: ShopItem) {
-        shopList.remove(shopItem)
-        updateLiveData()
+        appDatabase.shopListDao().deleteShopItem(shopItem.id)
     }
 
     override fun editShopItem(shopItem: ShopItem) {
-        val oldElement = getShopItem(shopItem.id)
-        shopList.remove(oldElement)
         addShopItem(shopItem)
     }
 
     override fun getShopItem(id: Int): ShopItem {
-        return shopList.find { it.id == id }
-            ?: throw RuntimeException("Can't find element with id: $id")
+        val dbModel = appDatabase.shopListDao().getShopItem(id)
+        return mapper.shopItemDbToShopItem(dbModel)
     }
 
-    override fun getShopList(): LiveData<List<ShopItem>> {
-        return liveDataShopList
-    }
+    override fun getShopList(): LiveData<List<ShopItem>> = MediatorLiveData<List<ShopItem>>().apply {
+            addSource(appDatabase.shopListDao().getShopList()) {
+               value = mapper.shopItemDbListToShopList(it)
+            }
+        }
 
-    fun updateLiveData()  {
-        liveDataShopList.value = shopList.toList()
-    }
+
+
 }

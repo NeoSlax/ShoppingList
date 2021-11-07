@@ -1,5 +1,7 @@
 package com.neoslax.shoppinglist.presentation
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,9 +11,9 @@ import com.neoslax.shoppinglist.domain.EditShopItemUseCase
 import com.neoslax.shoppinglist.domain.GetShopItemByIdUseCase
 import com.neoslax.shoppinglist.domain.ShopItem
 
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val getShopItemByIdUseCase = GetShopItemByIdUseCase(repository)
