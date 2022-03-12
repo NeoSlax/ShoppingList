@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.neoslax.shoppinglist.data.ShopListRepositoryImpl
 import com.neoslax.shoppinglist.domain.DeleteShopItemUseCase
 import com.neoslax.shoppinglist.domain.EditShopItemUseCase
@@ -24,10 +25,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var shopList = getShopListUseCase.getShopList()
 
-    private val scope = CoroutineScope(Dispatchers.IO)
-
     fun deleteShopItem(shopItem: ShopItem) {
-        scope.launch {
+        viewModelScope.launch {
             deleteShopItemUseCase.deleteShopItem(shopItem)
         }
 
@@ -35,14 +34,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun changeEnableState(shopItem: ShopItem) {
 
-        scope.launch {
+        viewModelScope.launch {
             val (name, count, enabled, id) = shopItem
             editShopItemUseCase.editShopItem(ShopItem(name, count, !enabled, id))
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        scope.cancel()
-    }
 }

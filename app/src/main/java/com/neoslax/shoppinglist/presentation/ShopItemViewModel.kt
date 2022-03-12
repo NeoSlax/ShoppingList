@@ -1,10 +1,7 @@
 package com.neoslax.shoppinglist.presentation
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.neoslax.shoppinglist.data.ShopListRepositoryImpl
 import com.neoslax.shoppinglist.domain.AddShopItemUseCase
 import com.neoslax.shoppinglist.domain.EditShopItemUseCase
@@ -19,8 +16,6 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val getShopItemByIdUseCase = GetShopItemByIdUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
-
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _errorInputName = MutableLiveData<Boolean>()
     val errorInputName: LiveData<Boolean>
@@ -48,11 +43,12 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val isValid = validateInput(name, count)
         if (isValid) {
             val shopItem = ShopItem(name, count, true)
-            scope.launch {
+            viewModelScope.launch {
                 addShopItemUseCase.addShopItem(shopItem)
+                finishWork()
             }
 
-            finishWork()
+
         }
 
     }
@@ -64,16 +60,18 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         if (isValid) {
             shopItem.value?.let {
                 val shopItemCopy = it.copy(name = name, count = count)
-                scope.launch {
+                viewModelScope.launch {
                     editShopItemUseCase.editShopItem(shopItemCopy)
+                    finishWork()
                 }
-                finishWork() }
+            }
+
 
         }
     }
 
     fun getShopItemById(id: Int) {
-        scope.launch {
+        viewModelScope.launch {
             val shopItem = getShopItemByIdUseCase.getShopItem(id)
             _shopItem.value = shopItem
         }
@@ -114,10 +112,5 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
 
     private fun finishWork() {
         _isFinished.value = Unit
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        scope.cancel()
     }
 }
