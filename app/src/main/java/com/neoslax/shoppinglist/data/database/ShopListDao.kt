@@ -1,4 +1,4 @@
-package com.neoslax.shoppinglist.data
+package com.neoslax.shoppinglist.data.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*

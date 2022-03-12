@@ -1,4 +1,4 @@
-package com.neoslax.shoppinglist.presentation
+package com.neoslax.shoppinglist.presentation.adapters
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.ListAdapter
 import com.neoslax.shoppinglist.R
 import com.neoslax.shoppinglist.databinding.ItemShopDisabledBinding
 import com.neoslax.shoppinglist.databinding.ItemShopEnabledBinding
-import com.neoslax.shoppinglist.domain.ShopItem
+import com.neoslax.shoppinglist.domain.entities.ShopItem
 
-class ShopListAdapter : ListAdapter<ShopItem, ShopListViewHolder>(ShopItemDiffCallback()) {
+class ShopListAdapter : ListAdapter<ShopItem, ShopListViewHolder>(ShopItemDiffCallback) {
 
 
     var onItemLongClickListener: ((shopItem: ShopItem) -> Unit)? = null

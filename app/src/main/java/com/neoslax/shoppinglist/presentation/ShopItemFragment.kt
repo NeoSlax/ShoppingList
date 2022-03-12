@@ -8,14 +8,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.textfield.TextInputLayout
-import com.neoslax.shoppinglist.R
 import com.neoslax.shoppinglist.databinding.FragmentItemBinding
-import com.neoslax.shoppinglist.domain.ShopItem
+import javax.inject.Inject
 
 class ShopItemFragment : Fragment() {
     private var screenMode: String = MODE_UNKNOWN
@@ -27,12 +23,19 @@ class ShopItemFragment : Fragment() {
         get() = _binding ?: throw RuntimeException("FragmentItemBinding == null")
     private lateinit var onShopItemFragmentExit: OnShopItemFragmentExit
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
     private val viewModel by lazy {
-        val factory = ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
-        ViewModelProvider(this, factory)[ShopItemViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[ShopItemViewModel::class.java]
     }
+
+    private val component by lazy {
+        (requireActivity().application as ShopListApp).component
+    }
+
     override fun onAttach(context: Context) {
+        component.inject(this)
         super.onAttach(context)
         if (context is OnShopItemFragmentExit) {
             onShopItemFragmentExit = context
@@ -80,7 +83,6 @@ class ShopItemFragment : Fragment() {
             val count = binding.editTextNumber.text?.toString()
             viewModel.addShopItem(name, count)
         }
-
 
     }
 

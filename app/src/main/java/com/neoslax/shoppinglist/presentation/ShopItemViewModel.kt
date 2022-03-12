@@ -1,21 +1,21 @@
 package com.neoslax.shoppinglist.presentation
 
-import android.app.Application
-import androidx.lifecycle.*
-import com.neoslax.shoppinglist.data.ShopListRepositoryImpl
-import com.neoslax.shoppinglist.domain.AddShopItemUseCase
-import com.neoslax.shoppinglist.domain.EditShopItemUseCase
-import com.neoslax.shoppinglist.domain.GetShopItemByIdUseCase
-import com.neoslax.shoppinglist.domain.ShopItem
-import kotlinx.coroutines.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.neoslax.shoppinglist.domain.entities.ShopItem
+import com.neoslax.shoppinglist.domain.usecases.AddShopItemUseCase
+import com.neoslax.shoppinglist.domain.usecases.EditShopItemUseCase
+import com.neoslax.shoppinglist.domain.usecases.GetShopItemByIdUseCase
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = ShopListRepositoryImpl(application)
-
-    private val addShopItemUseCase = AddShopItemUseCase(repository)
-    private val getShopItemByIdUseCase = GetShopItemByIdUseCase(repository)
-    private val editShopItemUseCase = EditShopItemUseCase(repository)
+class ShopItemViewModel @Inject constructor(
+    private val addShopItemUseCase: AddShopItemUseCase,
+    private val getShopItemByIdUseCase: GetShopItemByIdUseCase,
+    private val editShopItemUseCase: EditShopItemUseCase
+) : ViewModel() {
 
     private val _errorInputName = MutableLiveData<Boolean>()
     val errorInputName: LiveData<Boolean>
@@ -44,11 +44,9 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         if (isValid) {
             val shopItem = ShopItem(name, count, true)
             viewModelScope.launch {
-                addShopItemUseCase.addShopItem(shopItem)
+                addShopItemUseCase(shopItem)
                 finishWork()
             }
-
-
         }
 
     }
@@ -61,18 +59,16 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
             shopItem.value?.let {
                 val shopItemCopy = it.copy(name = name, count = count)
                 viewModelScope.launch {
-                    editShopItemUseCase.editShopItem(shopItemCopy)
+                    editShopItemUseCase(shopItemCopy)
                     finishWork()
                 }
             }
-
-
         }
     }
 
     fun getShopItemById(id: Int) {
         viewModelScope.launch {
-            val shopItem = getShopItemByIdUseCase.getShopItem(id)
+            val shopItem = getShopItemByIdUseCase(id)
             _shopItem.value = shopItem
         }
 
@@ -80,13 +76,11 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun parseName(inputName: String?): String {
-        return inputName?.toString()?.trim() ?: ""
+        return inputName?.trim() ?: ""
     }
 
     private fun parseCount(inputCount: String?): Int {
-        return inputCount?.let {
-            it.toString().trim().toIntOrNull()
-        } ?: 0
+        return inputCount?.trim()?.toIntOrNull() ?: 0
     }
 
     private fun validateInput(name: String, count: Int): Boolean {

@@ -1,4 +1,4 @@
-package com.neoslax.shoppinglist.presentation
+package com.neoslax.shoppinglist.presentation.adapters
 
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
