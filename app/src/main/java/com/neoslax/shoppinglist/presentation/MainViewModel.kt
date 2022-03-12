@@ -1,33 +1,25 @@
 package com.neoslax.shoppinglist.presentation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.neoslax.shoppinglist.data.ShopListRepositoryImpl
-import com.neoslax.shoppinglist.domain.DeleteShopItemUseCase
-import com.neoslax.shoppinglist.domain.EditShopItemUseCase
-import com.neoslax.shoppinglist.domain.GetShopListUseCase
-import com.neoslax.shoppinglist.domain.ShopItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import com.neoslax.shoppinglist.domain.usecases.DeleteShopItemUseCase
+import com.neoslax.shoppinglist.domain.usecases.EditShopItemUseCase
+import com.neoslax.shoppinglist.domain.usecases.GetShopListUseCase
+import com.neoslax.shoppinglist.domain.entities.ShopItem
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel @Inject constructor(
+    getShopListUseCase: GetShopListUseCase,
+    private val deleteShopItemUseCase: DeleteShopItemUseCase,
+    private val editShopItemUseCase: EditShopItemUseCase
+) : ViewModel() {
 
-    private val shopListRepositoryImpl = ShopListRepositoryImpl(application) //FIXME
-
-    private val getShopListUseCase = GetShopListUseCase(shopListRepositoryImpl)
-    private val deleteShopItemUseCase = DeleteShopItemUseCase(shopListRepositoryImpl)
-    private val editShopItemUseCase = EditShopItemUseCase(shopListRepositoryImpl)
-
-    var shopList = getShopListUseCase.getShopList()
+    var shopList = getShopListUseCase()
 
     fun deleteShopItem(shopItem: ShopItem) {
         viewModelScope.launch {
-            deleteShopItemUseCase.deleteShopItem(shopItem)
+            deleteShopItemUseCase(shopItem)
         }
 
     }
@@ -36,7 +28,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             val (name, count, enabled, id) = shopItem
-            editShopItemUseCase.editShopItem(ShopItem(name, count, !enabled, id))
+            editShopItemUseCase(ShopItem(name, count, !enabled, id))
         }
     }
 

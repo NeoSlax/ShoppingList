@@ -1,8 +1,10 @@
-package com.neoslax.shoppinglist.data
+package com.neoslax.shoppinglist.data.mapper
 
-import com.neoslax.shoppinglist.domain.ShopItem
+import com.neoslax.shoppinglist.data.database.ShopItemDbModel
+import com.neoslax.shoppinglist.domain.entities.ShopItem
+import javax.inject.Inject
 
-class ShopListMapper {
+class ShopListMapper @Inject constructor() {
 
     fun shopItemToShopItemDb(shopItem: ShopItem) = ShopItemDbModel(
         id = shopItem.id,

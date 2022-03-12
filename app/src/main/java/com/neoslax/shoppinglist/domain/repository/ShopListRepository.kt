@@ -1,6 +1,7 @@
-package com.neoslax.shoppinglist.domain
+package com.neoslax.shoppinglist.domain.repository
 
 import androidx.lifecycle.LiveData
+import com.neoslax.shoppinglist.domain.entities.ShopItem
 
 interface ShopListRepository {
 

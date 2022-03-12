@@ -1,9 +1,10 @@
-package com.neoslax.shoppinglist.presentation
+package com.neoslax.shoppinglist.presentation.adapters
 
 import androidx.recyclerview.widget.DiffUtil
-import com.neoslax.shoppinglist.domain.ShopItem
+import com.neoslax.shoppinglist.domain.entities.ShopItem
+import javax.inject.Inject
 
-class ShopItemDiffCallback : DiffUtil.ItemCallback<ShopItem>() {
+object ShopItemDiffCallback : DiffUtil.ItemCallback<ShopItem>() {
     override fun areItemsTheSame(oldItem: ShopItem, newItem: ShopItem): Boolean {
         return oldItem.id == newItem.id
     }

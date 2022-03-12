@@ -1,4 +1,4 @@
-package com.neoslax.shoppinglist.domain
+package com.neoslax.shoppinglist.domain.entities
 
 data class ShopItem(
     val name: String,

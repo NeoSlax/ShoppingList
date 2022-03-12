@@ -41,7 +41,7 @@ class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmen
     }
 
     override fun onShopItemFragmentExit() {
-        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
         onBackPressed()
     }
 

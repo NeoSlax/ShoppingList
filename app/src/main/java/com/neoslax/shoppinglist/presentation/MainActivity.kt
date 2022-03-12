@@ -2,27 +2,33 @@ package com.neoslax.shoppinglist.presentation
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.neoslax.shoppinglist.R
 import com.neoslax.shoppinglist.databinding.ActivityMainBinding
+import com.neoslax.shoppinglist.presentation.adapters.ShopListAdapter
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExit {
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private val viewModel by lazy {
-        val factory = ViewModelProvider.AndroidViewModelFactory(application)
-        ViewModelProvider(this, factory)[MainViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
     }
     private lateinit var adapter: ShopListAdapter
     private lateinit var binding: ActivityMainBinding
 
+    private val component by lazy {
+        (application as ShopListApp).component
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -36,10 +42,10 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
             }
         }
 
-       viewModel.shopList.observe(this, {
-            Log.d("MAIN_ACTIVITY", "viewModel.shopList: ${it.toString()}")
-            adapter.submitList(it)
-        })
+       viewModel.shopList.observe(this) {
+           Log.d("MAIN_ACTIVITY", "viewModel.shopList: $it")
+           adapter.submitList(it)
+       }
 
 
     }
