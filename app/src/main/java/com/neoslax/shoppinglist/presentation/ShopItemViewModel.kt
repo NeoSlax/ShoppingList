@@ -1,5 +1,7 @@
 package com.neoslax.shoppinglist.presentation
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,14 +10,17 @@ import com.neoslax.shoppinglist.domain.AddShopItemUseCase
 import com.neoslax.shoppinglist.domain.EditShopItemUseCase
 import com.neoslax.shoppinglist.domain.GetShopItemByIdUseCase
 import com.neoslax.shoppinglist.domain.ShopItem
+import kotlinx.coroutines.*
 
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val addShopItemUseCase = AddShopItemUseCase(repository)
     private val getShopItemByIdUseCase = GetShopItemByIdUseCase(repository)
     private val editShopItemUseCase = EditShopItemUseCase(repository)
+
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _errorInputName = MutableLiveData<Boolean>()
     val errorInputName: LiveData<Boolean>
@@ -43,7 +48,10 @@ class ShopItemViewModel : ViewModel() {
         val isValid = validateInput(name, count)
         if (isValid) {
             val shopItem = ShopItem(name, count, true)
-            addShopItemUseCase.addShopItem(shopItem)
+            scope.launch {
+                addShopItemUseCase.addShopItem(shopItem)
+            }
+
             finishWork()
         }
 
@@ -56,15 +64,21 @@ class ShopItemViewModel : ViewModel() {
         if (isValid) {
             shopItem.value?.let {
                 val shopItemCopy = it.copy(name = name, count = count)
-                editShopItemUseCase.editShopItem(shopItemCopy)
+                scope.launch {
+                    editShopItemUseCase.editShopItem(shopItemCopy)
+                }
                 finishWork() }
 
         }
     }
 
     fun getShopItemById(id: Int) {
-        val shopItem = getShopItemByIdUseCase.getShopItem(id)
-        _shopItem.value = shopItem
+        scope.launch {
+            val shopItem = getShopItemByIdUseCase.getShopItem(id)
+            _shopItem.value = shopItem
+        }
+
+
     }
 
     private fun parseName(inputName: String?): String {
@@ -100,5 +114,10 @@ class ShopItemViewModel : ViewModel() {
 
     private fun finishWork() {
         _isFinished.value = Unit
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        scope.cancel()
     }
 }

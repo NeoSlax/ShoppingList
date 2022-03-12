@@ -28,7 +28,10 @@ class ShopItemFragment : Fragment() {
     private lateinit var onShopItemFragmentExit: OnShopItemFragmentExit
 
 
-    private lateinit var viewModel: ShopItemViewModel
+    private val viewModel by lazy {
+        val factory = ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
+        ViewModelProvider(this, factory)[ShopItemViewModel::class.java]
+    }
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnShopItemFragmentExit) {
@@ -56,7 +59,7 @@ class ShopItemFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
+//        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         setupEditTextListeners()
