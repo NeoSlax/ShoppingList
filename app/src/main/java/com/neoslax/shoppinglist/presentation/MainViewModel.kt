@@ -21,7 +21,6 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             deleteShopItemUseCase(shopItem)
         }
-
     }
 
     fun changeEnableState(shopItem: ShopItem) {
