@@ -1,6 +1,8 @@
 package com.neoslax.shoppinglist.presentation
 
+import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.neoslax.shoppinglist.databinding.FragmentItemBinding
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class ShopItemFragment : Fragment() {
     private var screenMode: String = MODE_UNKNOWN
@@ -81,7 +84,18 @@ class ShopItemFragment : Fragment() {
 
             val name = binding.editTextName.text?.toString()
             val count = binding.editTextNumber.text?.toString()
-            viewModel.addShopItem(name, count)
+            //viewModel.addShopItem(name, count)
+            thread {
+                context?.contentResolver?.insert(
+                    Uri.parse("content://com.neoslax.shoppinglist/shop_list"),
+                    ContentValues().apply {
+                        put("id", 0)
+                        put("name", name)
+                        put("count", count?.toInt())
+                        put("enabled", true)
+                    }
+                )
+            }
         }
 
     }
@@ -92,7 +106,19 @@ class ShopItemFragment : Fragment() {
         binding.submitButton.setOnClickListener {
             val name = binding.editTextName.text?.toString()
             val count = binding.editTextNumber.text?.toString()
-            viewModel.editShopItem(name, count)
+            //viewModel.editShopItem(name, count)
+
+            thread {
+                context?.contentResolver?.update(
+                    Uri.parse("content://com.neoslax.shoppinglist/shop_list"),
+                    ContentValues().apply {
+                        put("id", shopItemId)
+                        put("name", name)
+                        put("count", count?.toInt())
+                        put("enabled", true)
+                    }, null, null
+                )
+            }
 
         }
 

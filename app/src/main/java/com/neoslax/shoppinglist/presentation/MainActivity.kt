@@ -1,5 +1,6 @@
 package com.neoslax.shoppinglist.presentation
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import com.neoslax.shoppinglist.R
 import com.neoslax.shoppinglist.databinding.ActivityMainBinding
 import com.neoslax.shoppinglist.presentation.adapters.ShopListAdapter
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExit {
 
@@ -42,10 +44,29 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
             }
         }
 
-       viewModel.shopList.observe(this) {
-           Log.d("MAIN_ACTIVITY", "viewModel.shopList: $it")
-           adapter.submitList(it)
-       }
+        viewModel.shopList.observe(this) {
+            Log.d("MAIN_ACTIVITY", "viewModel.shopList: $it")
+            adapter.submitList(it)
+        }
+        thread {
+            val cursor = contentResolver.query(
+            Uri.parse("content://com.neoslax.shoppinglist/shop_list"),
+            null,
+            null,
+            null,
+            null
+        )
+            while (cursor?.moveToNext() == true) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val name = cursor.getInt(cursor.getColumnIndexOrThrow("name"))
+                val count = cursor.getInt(cursor.getColumnIndexOrThrow("count"))
+                val enabled = cursor.getInt(cursor.getColumnIndexOrThrow("enabled")) > 0
+
+                Log.d("MainActivity", "id $id, name: $name, count $count, enabled: $enabled")
+            }
+
+            cursor?.close()
+        }
 
 
     }
@@ -80,7 +101,14 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnShopItemFragmentExi
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = adapter.currentList[viewHolder.adapterPosition]
                 Log.d("onSwiped", "item = $item, pos = ${viewHolder.adapterPosition}")
-                viewModel.deleteShopItem(item)
+                //viewModel.deleteShopItem(item)
+                thread {
+                    contentResolver.delete(
+                        Uri.parse("content://com.neoslax.shoppinglist/shop_list"),
+                        null,
+                        arrayOf(item.id.toString())
+                    ) }
+
 
             }
 
